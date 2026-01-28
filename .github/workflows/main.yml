@@ -1,0 +1,29 @@
+name: Build  Image
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  Setup:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+    - name: build
+      run: ./build.sh release v4.11.0.6 apu2
+    - name: clean
+      run: ./build.sh dev-build $PWD/release/coreboot apu2 distclean
+    - name: config file for target platform
+      run: cp $PWD/release/coreboot/configs/config.pcengines_apu2 $PWD/release/coreboot/.config
+    - name: Create full config
+      run: ./build.sh dev-build $PWD/release/coreboot apu2 olddefconfig
+    - name: Copy config
+      run: cp .config release/coreboot/.config
+    - name: Build Coreboot image
+      run: ./build.sh dev-build $PWD/release/coreboot apu2 CPUS=$(nproc)
+    - name: Upload image
+      uses: actions/upload-artifact@v6.0.0
+      with:
+        name: image
+        path: release/coreboot/build
+
