@@ -1,10 +1,11 @@
 name: Build  Image
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
+  push:
 
 jobs:
-  Setup:
+  Build:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout

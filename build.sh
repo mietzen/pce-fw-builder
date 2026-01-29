@@ -26,6 +26,14 @@ usage () {
     exit
 }
 
+get_docker_flags() {
+    if [ -t 0 ]; then
+        echo "-it"
+    else
+        echo "-i"
+    fi
+}
+
 check_if_legacy() {
     product_version=${1//v/}
     case "$product_version" in
@@ -158,7 +166,7 @@ dev_build() {
     GROUP_ID=`id -g`
     if [ "$legacy" == 1 ]; then
         echo "Dev-build coreboot legacy"
-        docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+        docker run --rm $(get_docker_flags) -v $cb_path:/home/coreboot/coreboot  \
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
@@ -170,7 +178,7 @@ dev_build() {
         if [ ! -d "$PWD/ccache" ]; then
           mkdir $PWD/ccache
         fi
-        docker run --rm -it -v $cb_path:/home/coreboot/coreboot  \
+        docker run --rm $(get_docker_flags) -v $cb_path:/home/coreboot/coreboot  \
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/ccache:/home/coreboot/.ccache \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
@@ -215,7 +223,7 @@ release() {
     GROUP_ID=`id -g`
     if [ "$legacy" == 1 ]; then
         echo "Release $1 build coreboot legacy"
-        docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+        docker run --rm $(get_docker_flags) -v $PWD/release/coreboot:/home/coreboot/coreboot  \
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder-legacy:latest \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $*
@@ -224,7 +232,7 @@ release() {
         sslverify=true
         check_sdk_version $tag
         echo "Release $1 build coreboot mainline"
-        docker run --rm -it -v $PWD/release/coreboot:/home/coreboot/coreboot  \
+        docker run --rm $(get_docker_flags) -v $PWD/release/coreboot:/home/coreboot/coreboot  \
             -e USER_ID=$USER_ID -e GROUP_ID=$GROUP_ID \
             -v $PWD/scripts:/home/coreboot/scripts pcengines/pce-fw-builder:$sdk_ver \
             /home/coreboot/scripts/pce-fw-builder.sh $legacy $sslverify $*
