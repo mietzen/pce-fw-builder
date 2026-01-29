@@ -11,7 +11,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6
     - name: build
-      run: ./build.sh release v4.11.0.6 apu2
+      run: ./build.sh release v4.17.0.3 apu2
     - name: clean
       run: ./build.sh dev-build $PWD/release/coreboot apu2 distclean
     - name: config file for target platform
